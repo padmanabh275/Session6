@@ -7,7 +7,6 @@ class BasicBlock(nn.Module):
 
     def __init__(self, in_planes, planes, stride=1):
         super(BasicBlock, self).__init__()
-        # Reduced number of filters
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
@@ -41,26 +40,22 @@ class MNIST_DNN(nn.Module):
     def __init__(self):
         super(MNIST_DNN, self).__init__()
         
-        # Reduced initial channels
-        self.conv1 = nn.Conv2d(1, 8, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(8)
+        # Initial convolution with minimal channels
+        self.conv1 = nn.Conv2d(1, 4, kernel_size=3, stride=1, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(4)
         self.dropout1 = nn.Dropout(0.1)
         
-        # Reduced number of channels in each layer
-        self.layer1 = self._make_layer(8, 8, 2)       # 28x28
-        self.layer2 = self._make_layer(8, 16, 2, 2)   # 14x14
-        self.layer3 = self._make_layer(16, 32, 2, 2)  # 7x7
+        # Minimal channel progression
+        self.layer1 = self._make_layer(4, 8, 1)      # 28x28
+        self.layer2 = self._make_layer(8, 16, 1, 2)  # 14x14
+        self.layer3 = self._make_layer(16, 16, 1, 2) # 7x7
         
-        # Global Average Pooling and smaller FC layers
+        # Global Average Pooling and minimal FC layers
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout2 = nn.Dropout(0.2)
-        self.fc = nn.Sequential(
-            nn.Linear(32, 16),
-            nn.BatchNorm1d(16),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(16, 10)
-        )
+        
+        # Modified FC layer without BatchNorm for single sample inference
+        self.fc = nn.Linear(16, 10)
         
         self._initialize_weights()
 
