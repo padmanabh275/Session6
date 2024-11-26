@@ -2,75 +2,68 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class BasicBlock(nn.Module):
-    expansion = 1
-
-    def __init__(self, in_planes, planes, stride=1):
-        super(BasicBlock, self).__init__()
-        self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
-        
-        self.dropout = nn.Dropout(0.2)
-        
-        self.shortcut = nn.Sequential()
-        if stride != 1 or in_planes != planes:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_planes, planes, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(planes)
-            )
-
-    def forward(self, x):
-        identity = self.shortcut(x)
-        
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = F.relu(out)
-        
-        out = self.conv2(out)
-        out = self.bn2(out)
-        
-        out += identity
-        out = F.relu(out)
-        out = self.dropout(out)
-        return out
-
 class MNIST_DNN(nn.Module):
     def __init__(self):
         super(MNIST_DNN, self).__init__()
         
-        # Initial convolution with minimal channels
-        self.conv1 = nn.Conv2d(1, 4, kernel_size=3, stride=1, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(4)
-        self.dropout1 = nn.Dropout(0.1)
+        # First Convolution Block - Slightly increased initial channels
+        self.conv1 = nn.Sequential(
+            nn.Conv2d(1, 6, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(6),
+            nn.Conv2d(6, 6, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(6),
+            nn.Conv2d(6, 12, kernel_size=3, stride=2, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(12),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(p=0.15)  # Reduced dropout
+        )
         
-        # Minimal channel progression
-        self.layer1 = self._make_layer(4, 8, 1)      # 28x28
-        self.layer2 = self._make_layer(8, 16, 1, 2)  # 14x14
-        self.layer3 = self._make_layer(16, 16, 1, 2) # 7x7
+        # Second Convolution Block - Better channel progression
+        self.conv2 = nn.Sequential(
+            nn.Conv2d(12, 16, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(16),
+            nn.Conv2d(16, 16, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(16),
+            nn.Conv2d(16, 20, kernel_size=3, stride=2, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(20),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(p=0.15)
+        )
         
-        # Global Average Pooling and minimal FC layers
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.dropout2 = nn.Dropout(0.2)
+        # Third Convolution Block - Added residual connection
+        self.conv3_1 = nn.Sequential(
+            nn.Conv2d(20, 24, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(24)
+        )
         
-        # Modified FC layer without BatchNorm for single sample inference
-        self.fc = nn.Linear(16, 10)
+        self.conv3_2 = nn.Sequential(
+            nn.Conv2d(24, 24, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(24),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.Dropout(p=0.15)
+        )
+        
+        # Global Average Pooling and FC layer
+        self.gap = nn.AdaptiveAvgPool2d((1, 1))
+        self.dropout_final = nn.Dropout(p=0.2)
+        self.fc = nn.Linear(24, 10)
         
         self._initialize_weights()
-
-    def _make_layer(self, in_planes, planes, num_blocks, stride=1):
-        strides = [stride] + [1]*(num_blocks-1)
-        layers = []
-        for stride in strides:
-            layers.append(BasicBlock(in_planes, planes, stride))
-            in_planes = planes
-        return nn.Sequential(*layers)
-
+        
     def _initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -79,18 +72,21 @@ class MNIST_DNN(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
+        # First two conv blocks
         x = self.conv1(x)
-        x = self.bn1(x)
-        x = F.relu(x)
-        x = self.dropout1(x)
+        x = self.conv2(x)
         
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
+        # Third block with residual connection
+        identity = x
+        x = self.conv3_1(x)
+        x = self.conv3_2(x)
         
-        x = self.avgpool(x)
-        x = self.dropout2(x)
+        # Global Average Pooling
+        x = self.gap(x)
+        x = self.dropout_final(x)
         x = torch.flatten(x, 1)
+        
+        # FC layer
         x = self.fc(x)
         
         return F.log_softmax(x, dim=1)

@@ -163,6 +163,7 @@ def train_model():
     
     # Initialize model
     model = MNIST_DNN().to(device)
+    print(f"\nTotal parameters: {model.count_parameters():,}")
     criterion = nn.NLLLoss()
     
     # Modified optimizer settings
