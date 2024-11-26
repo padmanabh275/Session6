@@ -99,19 +99,19 @@ The model saves checkpoints with timestamps and accuracy metrics, making it easy
 All test cases are implemented in test_model.py and will be run both locally and in the CI/CD pipeline.
 
 Training Progress:
---------------------------------------------------------------------------------
-Epoch 1/20:
-Train Loss: 0.2145, Train Acc: 93.45%
-Val Loss: 0.1123, Val Acc: 96.78%
---------------------------------------------------------------------------------
-Epoch 10/20:
-Train Loss: 0.0534, Train Acc: 98.23%
-Val Loss: 0.0412, Val Acc: 98.89%
---------------------------------------------------------------------------------
-Epoch 20/20:
-Train Loss: 0.0321, Train Acc: 99.12%
-Val Loss: 0.0298, Val Acc: 99.13%
-
+#--------------------------------------------------------------------------------
+#Epoch 1/20:
+#Train Loss: 0.2145, Train Acc: 93.45%
+#Val Loss: 0.1123, Val Acc: 96.78%
+#--------------------------------------------------------------------------------
+#Epoch 10/20:
+#Train Loss: 0.0534, Train Acc: 98.23%
+#Val Loss: 0.0412, Val Acc: 98.89%
+#--------------------------------------------------------------------------------
+#Epoch 20/20:
+#Train Loss: 0.0321, Train Acc: 99.12%
+#Val Loss: 0.0298, Val Acc: 99.13%
+#--------------------------------------------------------------------------------
 
 ### Model Architecture Summary
 
@@ -144,7 +144,7 @@ Total Parameters: 18,604
 
 ### Key Achievements
 - **Final Accuracy**: 99.13% on validation set
-- **Parameters**: 7,046 (well under 20,000 limit)
+- **Parameters**: 18,604 (well under 20,000 limit)
 - **Training Time**: ~3 minutes on GPU
 - **Convergence**: Achieved in 20 epochs
 
@@ -169,5 +169,3 @@ mnist_model_20240318_153022_99.13.pth
 ## Training Results
 
 The model demonstrates excellent performance while maintaining a small parameter count, making it suitable for deployment in resource-constrained environments.
-### Model Performance
-
