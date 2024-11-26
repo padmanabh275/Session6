@@ -16,7 +16,7 @@ class BasicBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(planes)
         
         # Dropout for regularization
-        self.dropout = nn.Dropout2d(0.2)
+        self.dropout = nn.Dropout(0.2)
         
         # Shortcut connection (identity mapping)
         self.shortcut = nn.Sequential()
@@ -53,6 +53,7 @@ class MNIST_DNN(nn.Module):
         # Initial conv layer (similar to ResNet)
         self.conv1 = nn.Conv2d(1, 32, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(32)
+        self.dropout1 = nn.Dropout(0.1)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         
         # ResNet layers (reduced channels for MNIST)
@@ -63,9 +64,13 @@ class MNIST_DNN(nn.Module):
         
         # Global Average Pooling and FC layer
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.dropout2 = nn.Dropout(0.2)
         self.fc = nn.Sequential(
-            nn.Linear(256, 10),
-            nn.LogSoftmax(dim=1)
+            nn.Linear(256, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(128, 10)
         )
         
         # Initialize weights
@@ -88,12 +93,16 @@ class MNIST_DNN(nn.Module):
             elif isinstance(m, nn.BatchNorm2d):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         # Initial convolution (similar to ResNet)
         x = self.conv1(x)
         x = self.bn1(x)
         x = F.relu(x)
+        x = self.dropout1(x)
         x = self.maxpool(x)
         
         # ResNet blocks
@@ -104,10 +113,11 @@ class MNIST_DNN(nn.Module):
         
         # Global Average Pooling and classification
         x = self.avgpool(x)
+        x = self.dropout2(x)
         x = torch.flatten(x, 1)
         x = self.fc(x)
         
-        return x
+        return F.log_softmax(x, dim=1)
 
     def count_parameters(self):
         return sum(p.numel() for p in self.parameters() if p.requires_grad) 
