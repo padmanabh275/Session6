@@ -100,17 +100,17 @@ All test cases are implemented in test_model.py and will be run both locally and
 
 Training Progress:
 --------------------------------------------------------------------------------
-##Epoch 1/20:
-##Train Loss: 0.2145, Train Acc: 93.45%
-##Val Loss: 0.1123, Val Acc: 96.78%
+Epoch 1/20:
+Train Loss: 0.2145, Train Acc: 93.45%
+Val Loss: 0.1123, Val Acc: 96.78%
 --------------------------------------------------------------------------------
-##Epoch 10/20:
-##Train Loss: 0.0534, Train Acc: 98.23%
-##Val Loss: 0.0412, Val Acc: 98.89%
+Epoch 10/20:
+Train Loss: 0.0534, Train Acc: 98.23%
+Val Loss: 0.0412, Val Acc: 98.89%
 --------------------------------------------------------------------------------
-##Epoch 20/20:
-##Train Loss: 0.0321, Train Acc: 99.12%
-##Val Loss: 0.0298, Val Acc: 99.13%
+Epoch 20/20:
+Train Loss: 0.0321, Train Acc: 99.12%
+Val Loss: 0.0298, Val Acc: 99.13%
 --------------------------------------------------------------------------------
 
 ### Model Architecture Summary
