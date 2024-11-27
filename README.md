@@ -1,3 +1,5 @@
+![build succeeded](https://img.shields.io/badge/build-succeeded-brightgreen.svg)
+
 # MNIST Deep Neural Network with CI/CD
 
 This project implements a Deep Neural Network for MNIST digit classification with automated testing and CI/CD pipeline.
