@@ -4,13 +4,6 @@
 
 This project implements a Deep Neural Network for MNIST digit classification with automated testing and CI/CD pipeline.
 
-## Model Architecture
-- 4-layer DNN with BatchNormalization and Dropout
-- Input: 28x28 images
-- Output: 10 classes (digits 0-9)
-- Less than 20,000 parameters
-- Achieves >99% accuracy on validation set
-
 ## Project Structure 
 
 -project/
@@ -21,6 +14,33 @@ This project implements a Deep Neural Network for MNIST digit classification wit
 │ └── test_model.py # Model tests
 ├── requirements.txt # Dependencies
 └── README.md
+
+
+## Model Architecture:
+
+Total parameters: 13,912 (well under 20K limit)
+Channel progression: 1→8→8→16→16→10
+Efficient use of BatchNorm and Dropout (0.08)
+Simple but effective design
+
+# Training Performance:
+Best validation accuracy: 99.41%
+Training accuracy: 99.86%
+Smooth convergence over 20 epochs
+No overfitting issues
+
+# CI/CD Pipeline:
+All tests passing
+Parameter count verification
+Architecture validation
+Automated testing workflow
+
+# Key Metrics:
+Loss curves show stable training
+Learning rate scheduling worked well
+Good balance between train/val accuracy
+Consistent improvement throughout training
+
 
 ## Local Setup and Running
 
@@ -76,18 +96,6 @@ git add .
 git commit -m "Initial commit"
 git remote add origin <your-repo-url>
 git push -u origin main
-
-
-The CI/CD pipeline will automatically run on push to main branch.
-
-This implementation includes:
-
-A 4-layer DNN with BatchNorm and Dropout
-Automated testing for model architecture and parameters
-CI/CD pipeline using GitHub Actions
-Training script with validation
-Model saving with timestamps
-Complete documentation
 
 
 To run locally:
